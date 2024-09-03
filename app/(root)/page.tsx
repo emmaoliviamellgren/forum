@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { LatestThreads } from '../_components/LatestThreads';
+import { LatestThreads } from '../../components/LatestThreads';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -21,9 +21,9 @@ const LandingPage = () => {
     };
     return (
         <>
-            <header className='bg-secondary'>
+            <header className='bg-gradient-to-br from-zinc-900 to-zinc-700 h-64 w-full'>
                 <div className='pl-12 py-8 max-w-6xl mx-auto'>
-                    <h1 className='text-base font-medium'>
+                    <h1 className='text-base text-white font-medium'>
                         Welcome to Threads
                     </h1>
                     <p className='text-sm text-muted-foreground'>
