@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 
 type CommentsContextType = {
     comments: Comment[];
+    thread: Thread | null;
     setComments: (comments: Comment[]) => void;
     answered: boolean;
     setAnswered: (answered: boolean) => void;
@@ -91,6 +92,7 @@ const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({
     const value = {
         comments,
         setComments,
+        thread,
         answeredComment,
         answeredCommentId,
         setAnsweredCommentId,

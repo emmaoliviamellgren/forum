@@ -23,6 +23,7 @@ type CommentsProps = {
 export const Comments: React.FC<CommentsProps> = ({ isQnA, isLocked }) => {
     const {
         comments,
+        thread,
         answeredComment,
         answeredCommentId,
         handleMarkAsAnswered,
@@ -98,7 +99,7 @@ export const Comments: React.FC<CommentsProps> = ({ isQnA, isLocked }) => {
                                                     </span>
                                                 ) : (
                                                     currentUser?.id ===
-                                                        comment.creator?.id && (
+                                                        thread?.creator?.id && (
                                                         <button
                                                             className={`flex items-center ${
                                                                 isLocked
