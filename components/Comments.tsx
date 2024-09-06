@@ -97,30 +97,35 @@ export const Comments: React.FC<CommentsProps> = ({ isQnA, isLocked }) => {
                                                         Answered
                                                     </span>
                                                 ) : (
-                                                    <button
-                                                        className={`flex items-center ${
-                                                            isLocked
-                                                                ? 'text-gray-400 dark:text-primary/20'
-                                                                : 'text-gray-600 dark:text-muted-foreground'
-                                                        }`}
-                                                        onClick={() => {
-                                                            if (currentUser) {
-                                                                handleMarkAsAnswered(
-                                                                    comment.id
-                                                                );
-                                                            } else {
-                                                                router.push(
-                                                                    '/log-in'
-                                                                );
-                                                                toast.error(
-                                                                    'You need to log in to mark a comment as answered.'
-                                                                );
-                                                            }
-                                                        }}
-                                                        disabled={isLocked}>
-                                                        <FaCheck className='mr-2' />
-                                                        Mark as Answered
-                                                    </button>
+                                                    currentUser?.id ===
+                                                        comment.creator?.id && (
+                                                        <button
+                                                            className={`flex items-center ${
+                                                                isLocked
+                                                                    ? 'text-gray-400 dark:text-primary/20'
+                                                                    : 'text-gray-600 dark:text-muted-foreground'
+                                                            }`}
+                                                            onClick={() => {
+                                                                if (
+                                                                    currentUser
+                                                                ) {
+                                                                    handleMarkAsAnswered(
+                                                                        comment.id
+                                                                    );
+                                                                } else {
+                                                                    router.push(
+                                                                        '/log-in'
+                                                                    );
+                                                                    toast.error(
+                                                                        'You need to log in to mark a comment as answered.'
+                                                                    );
+                                                                }
+                                                            }}
+                                                            disabled={isLocked}>
+                                                            <FaCheck className='mr-2' />
+                                                            Mark as Answered
+                                                        </button>
+                                                    )
                                                 ))}
                                         </div>
                                     </div>
