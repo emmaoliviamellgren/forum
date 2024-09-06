@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getThreadById, lockThread, updateThread } from '@/lib/thread.db';
+import { getThreadById, lockThread } from '@/lib/thread.db';
 import { FaUnlock, FaLock } from 'react-icons/fa';
 
 import {
@@ -16,7 +16,7 @@ import {
 
 import { Comments } from '@/components/Comments';
 import { NewCommentForm } from '@/components/NewCommentForm';
-import { Thread, Comment } from '@/app/types/thread';
+import { Thread } from '@/app/types/thread';
 import { User } from '@/app/types/user';
 import { useAuth } from '@/app/providers/authProvider';
 import { Badge } from '@/components/ui/badge';
@@ -25,27 +25,21 @@ import { AlertCircle } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useComments } from '@/app/contexts/CommentsContext';
-
-type Params = {
-    id: string;
-};
+import { Button } from '@/components/ui/button';
 
 const ThreadDetailsPage = () => {
     const {
         handleCommentSubmit,
-        comments,
         setComments,
-        answered,
         setAnswered,
-        answeredCommentId,
         setAnsweredCommentId,
+        id,
     } = useComments();
 
     const [thread, setThread] = useState<Thread | null>(null);
     const [threadCreatorId, setThreadCreatorId] = useState<User | null>(null);
     const { user } = useAuth();
     const router = useRouter();
-    const { id } = useParams<Params>();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -76,7 +70,7 @@ const ThreadDetailsPage = () => {
         };
 
         fetchThread();
-    }, [id, router, comments, answeredCommentId, answered]);
+    }, [id, router]);
 
     const handleToggleLock = async () => {
         if (!thread) return;
@@ -88,6 +82,9 @@ const ThreadDetailsPage = () => {
             console.error('Failed to lock/unlock thread.', error);
         }
     };
+
+    const authorizedToManageThread =
+        user?.isModerator || user?.id === threadCreatorId?.id;
 
     if (loading || !thread) return <Loading />;
 
@@ -102,8 +99,18 @@ const ThreadDetailsPage = () => {
                                     <div>
                                         <p>{thread.title}</p>
                                     </div>
-                                    <div className='mr-2'>
-                                        {user && (
+                                    {authorizedToManageThread && (
+                                        <div className='mr-2 flex items-center gap-2'>
+                                            <Button
+                                                variant='outlineSecondary'
+                                                onClick={() =>
+                                                    router.push(
+                                                        `/threads/${thread.category}/${thread.id}/edit`
+                                                    )
+                                                }
+                                                className='mr-2 text-primary/70'>
+                                                Edit
+                                            </Button>
                                             <button onClick={handleToggleLock}>
                                                 {thread.isLocked ? (
                                                     <Badge
@@ -119,8 +126,8 @@ const ThreadDetailsPage = () => {
                                                     </Badge>
                                                 )}
                                             </button>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -157,13 +164,6 @@ const ThreadDetailsPage = () => {
 
                 {thread && (
                     <Comments
-                        // comments={comments}
-                        threadId={thread.id}
-                        threadCreatorId={thread.creator.id}
-                        // answered={answered}
-                        // setAnswered={setAnswered}
-                        // handleAnswered={handleMarkAsAnswered}
-                        // answeredCommentId={answeredCommentId ?? null}
                         isQnA={thread.isQnA ?? false}
                         isLocked={thread.isLocked}
                     />

@@ -4,7 +4,6 @@ import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import AuthContextProvider from './providers/authProvider';
 import { ThemeProvider } from './providers/themeProvider';
-import CommentsProvider from './contexts/CommentsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,14 +27,12 @@ export default function RootLayout({
                     defaultTheme='system'
                     enableSystem
                     disableTransitionOnChange>
-                    <CommentsProvider>
-                        <AuthContextProvider>
-                            <>
-                                <Toaster />
-                                {children}
-                            </>
-                        </AuthContextProvider>
-                    </CommentsProvider>
+                    <AuthContextProvider>
+                        <>
+                            <Toaster />
+                            {children}
+                        </>
+                    </AuthContextProvider>
                 </ThemeProvider>
             </body>
         </html>

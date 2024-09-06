@@ -18,13 +18,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { ComboBox } from './SelectCategoryNewThread';
-import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../app/providers/authProvider';
 import { Thread, ThreadCategory } from '../app/types/thread';
-import { createThread } from '@/lib/thread.db';
+import { createThread, getThreadById, updateThread } from '@/lib/thread.db';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useComments } from '@/app/contexts/CommentsContext';
+import Loading from './Loading';
 
 const FormSchema = z.object({
     threadTitle: z.string().min(10, {
@@ -39,9 +41,11 @@ const FormSchema = z.object({
     isQnA: z.boolean().optional(),
 });
 
-export const NewThreadForm = () => {
+export const EditThreadForm = () => {
     const { user: currentUser } = useAuth();
     const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const { id } = useComments();
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -52,6 +56,28 @@ export const NewThreadForm = () => {
         } as z.infer<typeof FormSchema>,
     });
 
+    useEffect(() => {
+        const fetchThread = async () => {
+            try {
+                const thread = await getThreadById(id);
+                if (thread) {
+                    form.reset({
+                        threadTitle: thread.title,
+                        threadBody: thread.description,
+                        threadCategory: thread.category,
+                        isQnA: thread.isQnA,
+                    });
+                }
+            } catch (error) {
+                toast.error('Failed to fetch thread data.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchThread();
+    }, [id, form]);
+
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         if (!currentUser) {
             toast.error('You must be logged in to create a thread.');
@@ -59,40 +85,22 @@ export const NewThreadForm = () => {
         }
 
         try {
-            const newThread: Thread = {
-                id: '',
-                creationDate: Timestamp.fromDate(new Date()),
-                comments: [],
+            await updateThread(id, {
                 title: data.threadTitle,
-                category: data.threadCategory as ThreadCategory,
                 description: data.threadBody,
-                creator: {
-                    id: currentUser.id,
-                    email: currentUser.email,
-                    username: currentUser.username,
-                    name: '',
-                    isModerator: false,
-                },
-                isQnA: data.isQnA || false,
-                isAnswered: false,
-                isLocked: false,
-            };
-
-            await createThread(newThread);
-
-            form.reset();
-
-            router.push('/');
+                category: data.threadCategory as ThreadCategory,
+                isQnA: data.isQnA,
+            });
+            toast.success('Thread updated successfully!');
+            router.push(`/threads/${data.threadCategory}/${id}`);
         } catch (error) {
-            toast.error('Failed to create thread: ' + (error as Error).message);
-            console.error('Error creating thread:', error);
+            toast.error('Failed to update thread.');
         }
     };
 
-    const handleCheckedQnA = (checked: boolean) => {
-        console.log('checked called!');
-        console.log('Checkbox checked:', checked);
-    };
+
+
+    if (loading) return <Loading />;
 
     return (
         <Form {...form}>
@@ -105,15 +113,13 @@ export const NewThreadForm = () => {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className='text-xl'>
-                                Create Thread
+                                Edit Thread
                             </FormLabel>
                             <FormDescription className='pb-6'>
-                                Please provide a title, body and its
-                                corresponding category for your new thread.
+                                Edit your thread here.
                             </FormDescription>
                             <FormControl>
                                 <Input
-                                    placeholder='Title'
                                     className='resize-none'
                                     {...field}
                                 />
@@ -129,7 +135,6 @@ export const NewThreadForm = () => {
                         <FormItem>
                             <FormControl>
                                 <Textarea
-                                    placeholder='Body'
                                     rows={5}
                                     className='resize-none'
                                     {...field}
@@ -150,8 +155,7 @@ export const NewThreadForm = () => {
                                         id='isQnA'
                                         checked={field.value || false}
                                         onCheckedChange={(checked) => {
-                                            field.onChange(checked);
-                                            handleCheckedQnA(Boolean(checked));
+                                            field.onChange(checked)
                                         }}
                                     />
                                     <Label

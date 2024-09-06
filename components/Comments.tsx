@@ -16,17 +16,11 @@ import { useAuth } from '../app/providers/authProvider';
 import { useComments } from '@/app/contexts/CommentsContext';
 
 type CommentsProps = {
-    threadId: string;
-    threadCreatorId: string;
     isQnA: boolean;
     isLocked: boolean;
 };
 
-export const Comments: React.FC<CommentsProps> = ({
-    threadCreatorId,
-    isQnA,
-    isLocked,
-}) => {
+export const Comments: React.FC<CommentsProps> = ({ isQnA, isLocked }) => {
     const {
         comments,
         answeredComment,

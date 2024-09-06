@@ -23,6 +23,12 @@ import { useState } from 'react';
 import Loading from './Loading';
 import { Badge } from '@/components/ui/badge';
 import { ModeToggle } from './ModeToggle';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const threadCategories: { title: string; description: string }[] = [
     {
@@ -55,7 +61,7 @@ const threadCategories: { title: string; description: string }[] = [
 export const Navigation = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const { user, handleSetModerator } = useAuth();
 
     const handleRedirect = (category: string) => {
         const formattedCategory = formatCategoryforURL(category);
@@ -121,25 +127,48 @@ export const Navigation = () => {
             </NavigationMenuList>
 
             <div className='flex gap-4'>
+                <Button onClick={handleSetModerator}>Set to moderator</Button>
                 <ModeToggle />
-                {!user ? (
-                    <>
+                {user ? (
+                    user.isModerator ? (
+                        <>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Badge
+                                            variant='destructive'
+                                            className='text-sm font-light'>
+                                            {getInitials(user.username)}
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Moderator</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                            <Link href='/'>
+                                <Button onClick={handleLogout}>Log out</Button>
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Badge
+                                variant='default'
+                                className='text-sm font-light'>
+                                {getInitials(user.username)}
+                            </Badge>
+                            <Link href='/'>
+                                <Button onClick={handleLogout}>Log out</Button>
+                            </Link>
+                        </>
+                    )
+                ) : (
+                    <div className='flex gap-4'>
                         <Link href='/log-in'>
                             <Button variant='outline'>Log in</Button>
                         </Link>
                         <Link href='/sign-up'>
                             <Button>Sign up</Button>
-                        </Link>{' '}
-                    </>
-                ) : (
-                    <div className='flex gap-4'>
-                        <Badge
-                            variant='default'
-                            className='text-sm font-light'>
-                            {getInitials(user.username)}
-                        </Badge>
-                        <Link href='/'>
-                            <Button onClick={handleLogout}>Log out</Button>
                         </Link>
                     </div>
                 )}

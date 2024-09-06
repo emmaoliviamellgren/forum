@@ -1,7 +1,8 @@
 export type User = {
     id: string;
     username: string;
-    name:string
+    name: string;
     email: string;
     password?: string;
-}
+    isModerator: boolean;
+};

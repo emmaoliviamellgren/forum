@@ -1,5 +1,5 @@
 import { db } from '@/firebase.config';
-import { setDoc, doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { setDoc, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 import bcrypt from 'bcryptjs';
 import { User } from '@/app/types/user';
@@ -33,5 +33,25 @@ export const getUserById = async (userId: string): Promise<User | null> => {
     } catch (error) {
         console.error('Failed to fetch user:', (error as Error).message);
         return null;
+    }
+};
+
+export const checkUserRole = async (userId: string): Promise<boolean> => {
+    try {
+        const user = await getUserById(userId);
+        return user?.isModerator || false;
+    } catch (error) {
+        console.error('Failed to check if user is moderator:', (error as Error).message);
+        return false;
+    }
+};
+
+export const setUserRole = async (userId: string, isModerator: boolean): Promise<void> => {
+    try {
+        const userDocRef = doc(db, 'users', userId);
+        await updateDoc(userDocRef, { isModerator });
+        console.log(`User role updated successfully for userId: ${userId}`);
+    } catch (error) {
+        console.error('Failed to set user role:', (error as Error).message);
     }
 };

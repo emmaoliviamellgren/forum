@@ -1,8 +1,9 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Comment, Thread } from '@/app/types/thread';
-import { updateThread } from '@/lib/thread.db';
+import { getThreadById, updateThread } from '@/lib/thread.db';
+import { useParams } from 'next/navigation';
 
 type CommentsContextType = {
     comments: Comment[];
@@ -14,21 +15,40 @@ type CommentsContextType = {
     setAnsweredCommentId: (commentId: string | null) => void;
     handleCommentSubmit: (newComment: Comment) => Promise<void>;
     handleMarkAsAnswered: (commentId: string) => Promise<void>;
+    id: string;
 };
 
-// Context with default value
+type Params = {
+    id: string;
+};
+
 export const CommentsContext = createContext<CommentsContextType | undefined>(
     undefined
 );
 
-// Provider component
-const CommentsProvider = ({ children }: { children: React.ReactNode }) => {
+const CommentsProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
     const [thread, setThread] = useState<Thread | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
     const [answered, setAnswered] = useState<boolean>(false);
     const [answeredCommentId, setAnsweredCommentId] = useState<string | null>(
         null
     );
+    const { id } = useParams<Params>();
+
+    useEffect(() => {
+        const fetchThreadData = async () => {
+            const fetchedThread = await getThreadById(id);
+            if (fetchedThread) {
+                setThread(fetchedThread);
+                setComments(fetchedThread.comments ?? []);
+                setAnsweredCommentId(fetchedThread.answeredCommentId ?? null);
+            }
+        };
+
+        fetchThreadData();
+    }, []);
 
     const answeredComment = comments.find(
         (comment) => comment.id === answeredCommentId
@@ -78,6 +98,7 @@ const CommentsProvider = ({ children }: { children: React.ReactNode }) => {
         handleMarkAsAnswered,
         answered,
         setAnswered,
+        id,
     };
 
     return (
