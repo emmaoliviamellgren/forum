@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { AiOutlineTags } from 'react-icons/ai';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +31,9 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+import { ThreadTag } from '../app/types/thread';
+import { v4 as uuidv4 } from 'uuid';
+
 const threadCategories: { title: string; description: string }[] = [
     {
         title: 'Software Development',
@@ -58,10 +62,49 @@ const threadCategories: { title: string; description: string }[] = [
     },
 ];
 
+const tags: ThreadTag[] = [
+    {
+        id: uuidv4(),
+        name: 'Cybersecurity',
+    },
+    {
+        id: uuidv4(),
+        name: 'Routing',
+    },
+    {
+        id: uuidv4(),
+        name: 'Frontend',
+    },
+    {
+        id: uuidv4(),
+        name: 'Backend',
+    },
+    {
+        id: uuidv4(),
+        name: 'Azure',
+    },
+    {
+        id: uuidv4(),
+        name: 'Machine Learning',
+    },
+    {
+        id: uuidv4(),
+        name: 'Version Control',
+    },
+    {
+        id: uuidv4(),
+        name: 'Networking Hardware',
+    },
+    {
+        id: uuidv4(),
+        name: 'Unit Testing',
+    },
+];
+
 export const Navigation = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const { user, handleSetModerator } = useAuth();
+    const { user } = useAuth();
 
     const handleRedirect = (category: string) => {
         const formattedCategory = formatCategoryforURL(category);
@@ -114,7 +157,7 @@ export const Navigation = () => {
                                 <ListItem
                                     key={threadCategory.title}
                                     title={threadCategory.title}
-                                    className='cursor-pointer'
+                                    className='cursor-pointer text-sm font-medium leading-none'
                                     onClick={() =>
                                         handleRedirect(threadCategory.title)
                                     }>
@@ -124,11 +167,30 @@ export const Navigation = () => {
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <NavigationMenuTrigger>
+                        Threads by Tag
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                        <ul className='grid w-fit gap-3 p-4 md:min-w-max grid-cols-1 md:grid-cols-2 lg:min-w-max'>
+                            {tags.map((tag) => (
+                                <span
+                                    key={tag.id}
+                                    className='flex cursor-pointer border-dashed border-2 rounded-full items-center px-3 shadow-md shadow:bg-gray-800/10 py-1 hover:bg-accent hover:text-accent-foreground transition-colors'>
+                                    <AiOutlineTags className='size-5'/>
+                                    <li
+                                        className='text-[0.82rem] font-medium leading-snug text-primary/80 p-2 w-fit'
+                                        onClick={() =>
+                                            handleRedirect(tag.name)
+                                        }>{tag.name}</li>
+                                </span>
+                            ))}
+                        </ul>
+                    </NavigationMenuContent>
+                </NavigationMenuItem>
             </NavigationMenuList>
 
             <div className='flex gap-4'>
-                {/* <Button onClick={handleSetModerator}>Set to moderator</Button> */}
-
                 {user ? (
                     user.isModerator ? (
                         <>
@@ -192,10 +254,8 @@ const ListItem = React.forwardRef<
                         className
                     )}
                     {...props}>
-                    <div className='text-sm font-medium leading-none'>
-                        {title}
-                    </div>
-                    <p className='line-clamp-2 text-xs leading-snug text-muted-foreground'>
+                    <div className=''>{title}</div>
+                    <p className='line-clamp-2 text-xs text-muted-foreground'>
                         {children}
                     </p>
                 </a>

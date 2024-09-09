@@ -65,17 +65,17 @@ const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const handleSetModerator = async () => {
-      if (user) {
-          try {
-              await setUserRole(user.id, true);
-              // Optionally, you can update the user state here to reflect the change
-              user.isModerator = true;
-              setUser({ ...user });
-          } catch (error) {
-              console.error('Failed to set user role:', error);
-          }
-      }
-  };
+        if (user) {
+            try {
+                await setUserRole(user.id, true);
+                // Optionally, you can update the user state here to reflect the change
+                user.isModerator = true;
+                setUser({ ...user });
+            } catch (error) {
+                console.error('Failed to set user role:', error);
+            }
+        }
+    };
 
     const register = async (values: AuthValues): Promise<string | void> => {
         const toastId = toast.loading('Creating account...');
@@ -136,7 +136,7 @@ const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const value = {
-      handleSetModerator,
+        handleSetModerator,
         user,
         authLoaded,
         register,

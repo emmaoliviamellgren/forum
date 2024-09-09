@@ -1,5 +1,5 @@
-import { Timestamp } from "firebase/firestore";
-import { User } from "./user";
+import { Timestamp } from 'firebase/firestore';
+import { User } from './user';
 
 type ThreadCategory =
     | 'Software Development'
@@ -11,31 +11,29 @@ type ThreadCategory =
 type ThreadStatus = 'New' | 'Hot';
 
 export type Comment = {
-  id: string;
-  content: string;
-  creationDate: Timestamp;
-  creator: User;
-}
+    id: string;
+    content: string;
+    creationDate: Timestamp;
+    creator: User;
+};
 
 export type Thread = {
-  id: string;
-  title: string;
-  category: ThreadCategory;
-  status?: ThreadStatus;
-  creationDate: Timestamp;
-  description: string;
-  creator: User;
-  comments: Comment[];
-  isQnA?:boolean;
-  isAnswered?:boolean;
-  answeredCommentId?: string | null;
-  isLocked: boolean;
-  tags: ThreadTag[];
-}
+    id: string;
+    title: string;
+    category: ThreadCategory;
+    status?: ThreadStatus;
+    creationDate: Timestamp;
+    description: string;
+    creator: User;
+    comments: Comment[];
+    isQnA?: boolean;
+    isAnswered?: boolean;
+    answeredCommentId?: string | null;
+    isLocked: boolean;
+    tags?: ThreadTag[];
+};
 
 export type ThreadTag = {
-  id: string;
-  name: string;
-}
-
-
+    id: string;
+    name: string;
+};
