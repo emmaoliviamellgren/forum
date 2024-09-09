@@ -4,6 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,11 +25,14 @@ import toast from 'react-hot-toast';
 import { ComboBox } from './SelectCategoryNewThread';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../app/providers/authProvider';
-import { Thread, ThreadCategory } from '../app/types/thread';
+import { Thread, ThreadCategory, ThreadTag } from '../app/types/thread';
 import { createThread } from '@/lib/thread.db';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
+import { FaPlus } from 'react-icons/fa';
+import { useTags } from '@/app/contexts/TagsContext';
+import { TagsForToggling } from './Tags';
 
 const FormSchema = z.object({
     threadTitle: z.string().min(10, {
@@ -37,9 +45,12 @@ const FormSchema = z.object({
         message: 'Thread category is required.',
     }),
     isQnA: z.boolean().optional(),
+    tags: z.array(z.string()).optional(),
 });
 
 export const NewThreadForm = () => {
+    const { selectedTags, setSelectedTags, handleToggleTag } = useTags();
+
     const { user: currentUser } = useAuth();
     const router = useRouter();
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -48,7 +59,7 @@ export const NewThreadForm = () => {
             threadTitle: '',
             threadBody: '',
             threadCategory: '',
-            isQnA: false,
+            isQnA: false
         } as z.infer<typeof FormSchema>,
     });
 
@@ -76,22 +87,19 @@ export const NewThreadForm = () => {
                 isQnA: data.isQnA || false,
                 isAnswered: false,
                 isLocked: false,
+                tags: selectedTags
             };
 
             await createThread(newThread);
 
             form.reset();
+            setSelectedTags([]);
 
             router.push('/');
         } catch (error) {
             toast.error('Failed to create thread: ' + (error as Error).message);
             console.error('Error creating thread:', error);
         }
-    };
-
-    const handleCheckedQnA = (checked: boolean) => {
-        console.log('checked called!');
-        console.log('Checkbox checked:', checked);
     };
 
     return (
@@ -151,7 +159,6 @@ export const NewThreadForm = () => {
                                         checked={field.value || false}
                                         onCheckedChange={(checked) => {
                                             field.onChange(checked);
-                                            handleCheckedQnA(Boolean(checked));
                                         }}
                                     />
                                     <Label
@@ -165,6 +172,36 @@ export const NewThreadForm = () => {
                         </FormItem>
                     )}
                 />
+                <FormField
+                    control={form.control}
+                    name='tags'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                                <div className='flex items-center'>
+                                    <Collapsible>
+                                        <CollapsibleTrigger>
+                                            <div className='flex gap-1 items-center'>
+                                                <FaPlus />
+                                                <p className='text-sm font-medium'>
+                                                    Add tag{' '}
+                                                    <span className='text-muted-foreground/50'>
+                                                        (optional)
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent>
+                                            <TagsForToggling />
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 <div className='flex items-center justify-between'>
                     <FormField
                         control={form.control}

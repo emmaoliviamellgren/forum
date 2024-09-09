@@ -30,9 +30,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { ThreadTag } from '../app/types/thread';
-import { v4 as uuidv4 } from 'uuid';
+import { useTags } from '@/app/contexts/TagsContext';
+import { TagsInNavigationMenu } from './Tags';
 
 const threadCategories: { title: string; description: string }[] = [
     {
@@ -62,49 +61,11 @@ const threadCategories: { title: string; description: string }[] = [
     },
 ];
 
-const tags: ThreadTag[] = [
-    {
-        id: uuidv4(),
-        name: 'Cybersecurity',
-    },
-    {
-        id: uuidv4(),
-        name: 'Routing',
-    },
-    {
-        id: uuidv4(),
-        name: 'Frontend',
-    },
-    {
-        id: uuidv4(),
-        name: 'Backend',
-    },
-    {
-        id: uuidv4(),
-        name: 'Azure',
-    },
-    {
-        id: uuidv4(),
-        name: 'Machine Learning',
-    },
-    {
-        id: uuidv4(),
-        name: 'Version Control',
-    },
-    {
-        id: uuidv4(),
-        name: 'Networking Hardware',
-    },
-    {
-        id: uuidv4(),
-        name: 'Unit Testing',
-    },
-];
-
 export const Navigation = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
+    const { tags } = useTags();
 
     const handleRedirect = (category: string) => {
         const formattedCategory = formatCategoryforURL(category);
@@ -172,20 +133,7 @@ export const Navigation = () => {
                         Threads by Tag
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                        <ul className='grid w-fit gap-3 p-4 md:min-w-max grid-cols-1 md:grid-cols-2 lg:min-w-max'>
-                            {tags.map((tag) => (
-                                <span
-                                    key={tag.id}
-                                    className='flex cursor-pointer border-dashed border-2 rounded-full items-center px-3 shadow-md shadow:bg-gray-800/10 py-1 hover:bg-accent hover:text-accent-foreground transition-colors'>
-                                    <AiOutlineTags className='size-5'/>
-                                    <li
-                                        className='text-[0.82rem] font-medium leading-snug text-primary/80 p-2 w-fit'
-                                        onClick={() =>
-                                            handleRedirect(tag.name)
-                                        }>{tag.name}</li>
-                                </span>
-                            ))}
-                        </ul>
+                        <TagsInNavigationMenu />
                     </NavigationMenuContent>
                 </NavigationMenuItem>
             </NavigationMenuList>

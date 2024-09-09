@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import AuthContextProvider from './providers/authProvider';
 import { ThemeProvider } from './providers/themeProvider';
+import TagsContextProvider from './contexts/TagsContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,10 +29,12 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange>
                     <AuthContextProvider>
-                        <>
-                            <Toaster />
-                            {children}
-                        </>
+                        <TagsContextProvider>
+                            <>
+                                <Toaster />
+                                {children}
+                            </>
+                        </TagsContextProvider>
                     </AuthContextProvider>
                 </ThemeProvider>
             </body>

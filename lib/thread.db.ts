@@ -92,10 +92,12 @@ export const createThread = async (data: Thread) => {
             comments: [],
             isQnA: data.isQnA || false,
             isAnswered: data.isAnswered || false,
-            isLocked: data.isLocked || false
+            isLocked: data.isLocked || false,
+            tags: data.tags && data.tags.length > 0 ? data.tags : [],
         };
 
         await addDoc(collection(db, 'threads'), newThread);
+        console.log('Added tags to thread:', newThread.tags);
         toast.success('Thread created successfully!');
     } catch (error) {
         toast.error('Failed to create thread: ' + (error as Error).message);
