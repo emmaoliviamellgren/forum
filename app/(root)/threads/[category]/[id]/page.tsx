@@ -26,6 +26,8 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useComments } from '@/app/contexts/CommentsContext';
 import { Button } from '@/components/ui/button';
+import { useTags } from '@/app/contexts/TagsContext';
+import { HiTag } from 'react-icons/hi';
 
 const ThreadDetailsPage = () => {
     const {
@@ -35,6 +37,8 @@ const ThreadDetailsPage = () => {
         setAnsweredCommentId,
         id,
     } = useComments();
+
+    const { tags } = useTags();
 
     const [thread, setThread] = useState<Thread | null>(null);
     const [threadCreatorId, setThreadCreatorId] = useState<User | null>(null);
@@ -137,6 +141,30 @@ const ThreadDetailsPage = () => {
                                     <div className='py-3 pl-1 pr-6 text-sm'>
                                         {thread.description}
                                     </div>
+                                    {tags.length > 0 && (
+                                        <div className='flex gap-2 items-center'>
+                                            {tags
+                                                .filter((tag) =>
+                                                    thread?.tags?.some(
+                                                        (t) => t.id === tag.id
+                                                    )
+                                                )
+                                                .map((tag) => (
+                                                    <div
+                                                        key={tag.id}
+                                                        className='mt-6 cursor-pointer'>
+                                                        <Badge
+                                                            variant='outline'
+                                                            className='py-1.5 px-4 flex items-center gap-2 border border-gray/40 dark:border-white/30 text-muted-foreground transition-colors hover:bg-muted hover:text-primary'>
+                                                            <HiTag className='size-4 hover:text-primary' />
+                                                            <p className='text-[0.82rem] text-muted-foreground hover:text-primary'>
+                                                                {tag.name}
+                                                            </p>
+                                                        </Badge>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         </TableBody>
