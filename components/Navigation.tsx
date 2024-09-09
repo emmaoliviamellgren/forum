@@ -127,8 +127,8 @@ export const Navigation = () => {
             </NavigationMenuList>
 
             <div className='flex gap-4'>
-                <Button onClick={handleSetModerator}>Set to moderator</Button>
-                <ModeToggle />
+                {/* <Button onClick={handleSetModerator}>Set to moderator</Button> */}
+
                 {user ? (
                     user.isModerator ? (
                         <>
@@ -137,7 +137,7 @@ export const Navigation = () => {
                                     <TooltipTrigger>
                                         <Badge
                                             variant='destructive'
-                                            className='text-sm font-light'>
+                                            className='text-sm font-light aspect-square cursor-default'>
                                             {getInitials(user.username)}
                                         </Badge>
                                     </TooltipTrigger>
@@ -172,6 +172,7 @@ export const Navigation = () => {
                         </Link>
                     </div>
                 )}
+                <ModeToggle />
             </div>
         </NavigationMenu>
     );

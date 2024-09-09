@@ -30,6 +30,12 @@ export type Thread = {
   isAnswered?:boolean;
   answeredCommentId?: string | null;
   isLocked: boolean;
+  tags: ThreadTag[];
+}
+
+export type ThreadTag = {
+  id: string;
+  name: string;
 }
 
 
