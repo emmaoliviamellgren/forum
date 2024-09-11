@@ -1,13 +1,17 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
-import { ThreadTag } from '../types/thread';
+import { Thread, ThreadTag } from '../types/thread';
+import { getAllThreads } from '@/lib/thread.db';
 
 type TagsContextType = {
     tags: ThreadTag[];
+    filteredThreads: Thread[];
     selectedTags: ThreadTag[];
     setSelectedTags: React.Dispatch<React.SetStateAction<ThreadTag[]>>;
+    selectedTag: ThreadTag | null;
+    setSelectedTag: (tag: ThreadTag | null) => void;
     handleToggleTag: (tag: ThreadTag) => void;
 };
 
@@ -58,6 +62,23 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
     ];
 
     const [selectedTags, setSelectedTags] = useState<ThreadTag[]>([]);
+    const [selectedTag, setSelectedTag] = useState<ThreadTag | null>(null);
+    const [threads, setThreads] = useState<Thread[]>([]);
+
+    useEffect(() => {
+        const fetchThreads = async () => {
+            try {
+                const data: Thread[] = await getAllThreads();
+                setThreads(data);
+            } catch (error) {
+                console.error('Error fetching threads:', error);
+            }
+        };
+
+        fetchThreads();
+    }, []);
+
+    console.log(threads)
 
     const handleToggleTag = (tag: ThreadTag) => {
         try {
@@ -71,7 +92,17 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
         }
     };
 
-    const value = { tags, handleToggleTag, selectedTags, setSelectedTags };
+    const filterThreadsByTag = (tag: ThreadTag | null) => {
+        console.log('Filtering threads by tag:', tag);
+        console.log('Threads:', threads);
+        return tag
+            ? threads.filter((thread) => thread?.tags?.some((t) => t.id === tag.id))
+            : threads;
+    };
+
+    const filteredThreads = filterThreadsByTag(selectedTag);
+
+    const value = { filteredThreads, tags, handleToggleTag, selectedTags, setSelectedTags, selectedTag, setSelectedTag };
 
     return (
         <TagsContext.Provider value={value}>{children}</TagsContext.Provider>

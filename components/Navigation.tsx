@@ -31,7 +31,6 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useTags } from '@/app/contexts/TagsContext';
-import { TagsInNavigationMenu } from './Tags';
 
 const threadCategories: { title: string; description: string }[] = [
     {
@@ -126,14 +125,6 @@ export const Navigation = () => {
                                 </ListItem>
                             ))}
                         </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>
-                        Threads by Tag
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <TagsInNavigationMenu />
                     </NavigationMenuContent>
                 </NavigationMenuItem>
             </NavigationMenuList>

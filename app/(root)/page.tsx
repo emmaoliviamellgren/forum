@@ -1,11 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { LatestThreads } from '../../components/LatestThreads';
+import { Threads } from '../../components/Threads';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../providers/authProvider';
+import SortByTags from '@/components/SortByTags';
 
 const LandingPage = () => {
     const router = useRouter();
@@ -42,7 +43,8 @@ const LandingPage = () => {
                         <span>Add new Thread</span>
                     </Button>
                 </Link>
-                <LatestThreads />
+                <SortByTags />
+                <Threads />
             </main>
         </>
     );
