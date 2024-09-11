@@ -7,10 +7,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../providers/authProvider';
 import SortByTags from '@/components/SortByTags';
+import { useTags } from '../contexts/TagsContext';
 
 const LandingPage = () => {
     const router = useRouter();
     const { user } = useAuth();
+    const { clearFilter } = useTags();
 
     const handleAddNewThreadClick = async (
         e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
@@ -22,7 +24,7 @@ const LandingPage = () => {
     };
     return (
         <>
-            <header className='bg-gradient-to-br from-zinc-900 to-zinc-700 h-64 w-full'>
+            <header className='bg-gradient-to-br from-zinc-900 to-zinc-700 h-fit w-full'>
                 <div className='pl-12 py-8 max-w-6xl mx-auto'>
                     <h1 className='text-base text-white font-medium'>
                         Welcome to Threads
@@ -31,8 +33,13 @@ const LandingPage = () => {
                         A community of developers
                     </p>
                 </div>
+                <div className='px-6 md:px-12 pt-32'>
+                    <p className='pl-4 text-muted-foreground/60 text-lg md:text-2xl font-extralight'>Sort threads by tags</p>
+                    <SortByTags />
+                </div>
             </header>
             <main className='mx-auto pb-5'>
+                <Threads />
                 <Link
                     href='/threads/new'
                     onClick={handleAddNewThreadClick}>
@@ -43,8 +50,6 @@ const LandingPage = () => {
                         <span>Add new Thread</span>
                     </Button>
                 </Link>
-                <SortByTags />
-                <Threads />
             </main>
         </>
     );

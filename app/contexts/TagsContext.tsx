@@ -13,6 +13,7 @@ type TagsContextType = {
     selectedTag: ThreadTag | null;
     setSelectedTag: (tag: ThreadTag | null) => void;
     handleToggleTag: (tag: ThreadTag) => void;
+    clearFilter: () => void;
 };
 
 export const TagsContext = createContext<TagsContextType | undefined>(
@@ -78,8 +79,6 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchThreads();
     }, []);
 
-    console.log(threads)
-
     const handleToggleTag = (tag: ThreadTag) => {
         try {
             setSelectedTags((prevTags) =>
@@ -93,8 +92,6 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const filterThreadsByTag = (tag: ThreadTag | null) => {
-        console.log('Filtering threads by tag:', tag);
-        console.log('Threads:', threads);
         return tag
             ? threads.filter((thread) => thread?.tags?.some((t) => t.id === tag.id))
             : threads;
@@ -102,7 +99,11 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const filteredThreads = filterThreadsByTag(selectedTag);
 
-    const value = { filteredThreads, tags, handleToggleTag, selectedTags, setSelectedTags, selectedTag, setSelectedTag };
+    const clearFilter = () => {
+        setSelectedTag(null);
+    }
+
+    const value = { filteredThreads, tags, handleToggleTag, selectedTags, setSelectedTags, selectedTag, setSelectedTag, clearFilter };
 
     return (
         <TagsContext.Provider value={value}>{children}</TagsContext.Provider>
