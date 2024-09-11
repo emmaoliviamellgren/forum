@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 import { ComboBox } from './SelectCategoryNewThread';
 import { Timestamp } from 'firebase/firestore';
 import { useAuth } from '../app/providers/authProvider';
-import { Thread, ThreadCategory, ThreadTag } from '../app/types/thread';
+import { Thread, ThreadCategory } from '../app/types/thread';
 import { createThread } from '@/lib/thread.db';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';

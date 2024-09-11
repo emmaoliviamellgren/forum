@@ -1,4 +1,4 @@
-import { Thread, ThreadCategory, Comment } from '@/app/types/thread';
+import { Thread, ThreadCategory, Comment, ThreadTag } from '@/app/types/thread';
 import { db } from '@/firebase.config';
 import { setDoc, doc, getDoc, deleteDoc, collection, getDocs, addDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import { getUserById } from './user.db';
 
 export const getAllThreads = async (): Promise<Thread[]> => {
     try {
+
         const threadsCollection = collection(db, 'threads');
         const threadsSnapshot = await getDocs(threadsCollection);
         const threads: Thread[] = await Promise.all(threadsSnapshot.docs.map(async doc => {
@@ -71,6 +72,46 @@ export const getThreadById = async (id: string): Promise<Thread | null> => {
         return null;
     }
 };
+
+// export const getTagsByIds = async (tagIds: string[]): Promise<ThreadTag[]> => {
+//     try {
+//         const tags: ThreadTag[] = await Promise.all(tagIds.map(async (tagId) => {
+//             const tagDoc = await getDoc(doc(db, 'tags', tagId));
+//             if (tagDoc.exists()) {
+//                 return { id: tagDoc.id, ...tagDoc.data() } as ThreadTag;
+//             } else {
+//                 console.warn(`Tag with ID ${tagId} does not exist.`);
+//                 return null;
+//             }
+//         }));
+
+//         return tags.filter(tag => tag !== null) as ThreadTag[];
+//     } catch (error) {
+//         toast.error('Failed to fetch tags.');
+//         console.error('Error fetching tags:', error);
+//         return [];
+//     }
+// }
+
+// export const getTagsForThread = async (threadId: string): Promise<ThreadTag[]> => {
+//     try {
+//         const threadDoc = await getDoc(doc(db, 'threads', threadId));
+//         if (!threadDoc.exists()) {
+//             console.log(`Thread with ID ${threadId} does not exist.`);
+//             return [];
+//         }
+
+//         const data = threadDoc.data() as Thread;
+//         const tagIds = data.tags ? data.tags.map(tag => tag.id) : [];
+//         const tags = await getTagsByIds(tagIds);
+
+//         return tags;
+//     } catch (error) {
+//         toast.error('Failed to fetch tags for thread: ' + (error as Error).message);
+//         console.error('Error fetching tags for thread:', error);
+//         return [];
+//     }
+// };
 
 export const createThread = async (data: Thread) => {
     try {

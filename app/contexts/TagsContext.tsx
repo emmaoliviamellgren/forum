@@ -7,12 +7,16 @@ import { getAllThreads } from '@/lib/thread.db';
 
 type TagsContextType = {
     tags: ThreadTag[];
+    threads: Thread[];
     filteredThreads: Thread[];
     selectedTags: ThreadTag[];
     setSelectedTags: React.Dispatch<React.SetStateAction<ThreadTag[]>>;
     selectedTag: ThreadTag | null;
     setSelectedTag: (tag: ThreadTag | null) => void;
     handleToggleTag: (tag: ThreadTag) => void;
+    fetchTagsForThread: (
+        thread: Thread
+    ) => (ThreadTag | undefined)[] | undefined;
     clearFilter: () => void;
 };
 
@@ -79,6 +83,13 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchThreads();
     }, []);
 
+
+    const fetchTagsForThread = (thread: Thread): ThreadTag[] => {
+        return thread.tags?.map((tagId) =>
+            tags.find((tag) => tag.id === tagId.id)
+        ) as ThreadTag[];
+    };
+
     const handleToggleTag = (tag: ThreadTag) => {
         try {
             setSelectedTags((prevTags) =>
@@ -93,7 +104,9 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const filterThreadsByTag = (tag: ThreadTag | null) => {
         return tag
-            ? threads.filter((thread) => thread?.tags?.some((t) => t.id === tag.id))
+            ? threads.filter((thread) =>
+                  thread?.tags?.some((t) => t.id === tag.id)
+              )
             : threads;
     };
 
@@ -101,9 +114,20 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const clearFilter = () => {
         setSelectedTag(null);
-    }
+    };
 
-    const value = { filteredThreads, tags, handleToggleTag, selectedTags, setSelectedTags, selectedTag, setSelectedTag, clearFilter };
+    const value = {
+        threads,
+        filteredThreads,
+        tags,
+        handleToggleTag,
+        selectedTags,
+        setSelectedTags,
+        selectedTag,
+        setSelectedTag,
+        fetchTagsForThread,
+        clearFilter,
+    };
 
     return (
         <TagsContext.Provider value={value}>{children}</TagsContext.Provider>
