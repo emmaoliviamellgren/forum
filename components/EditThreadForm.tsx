@@ -50,7 +50,7 @@ export const EditThreadForm = () => {
 
     const { user: currentUser } = useAuth();
     const { id } = useComments();
-    const { tags, selectedTags, handleToggleTag, fetchSetTags } = useTags();
+    const { tags, selectedTags, handleToggleTag, fetchSetTags, fetchThreads } = useTags();
     const [thread, setThread] = useState<Thread | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -110,6 +110,7 @@ export const EditThreadForm = () => {
             });
             toast.success('Thread updated successfully!');
             router.push(`/threads/${data.threadCategory}/${id}`);
+            fetchThreads();
         } catch (error) {
             toast.error('Failed to update thread.');
         }

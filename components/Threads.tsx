@@ -64,7 +64,12 @@ export const Threads = () => {
                     <TableRow>
                         <TableHead className='bg-secondary'>
                             {selectedTag ? (
-                                <p>Threads tagged with <span className='text-primary'>{selectedTag?.name}</span></p>
+                                <p>
+                                    Threads tagged with{' '}
+                                    <span className='text-primary'>
+                                        {selectedTag?.name}
+                                    </span>
+                                </p>
                             ) : (
                                 <p>Latest Threads</p>
                             )}

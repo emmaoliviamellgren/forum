@@ -16,6 +16,7 @@ type TagsContextType = {
     fetchSetTags: (threadId: string) => void;
     handleToggleTag: (tag: ThreadTag) => void;
     clearFilter: () => void;
+    fetchThreads: () => void;
 };
 
 export const TagsContext = createContext<TagsContextType | undefined>(
@@ -68,16 +69,16 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
     const [selectedTag, setSelectedTag] = useState<ThreadTag | null>(null);
     const [threads, setThreads] = useState<Thread[]>([]);
 
+    const fetchThreads = async () => {
+        try {
+            const data: Thread[] = await getAllThreads();
+            setThreads(data);
+        } catch (error) {
+            console.error('Error fetching threads:', error);
+        }
+    };
+    
     useEffect(() => {
-        const fetchThreads = async () => {
-            try {
-                const data: Thread[] = await getAllThreads();
-                setThreads(data);
-            } catch (error) {
-                console.error('Error fetching threads:', error);
-            }
-        };
-
         fetchThreads();
     }, []);
 
@@ -119,6 +120,7 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const value = {
         threads,
+        fetchThreads,
         filteredThreads,
         tags,
         handleToggleTag,
