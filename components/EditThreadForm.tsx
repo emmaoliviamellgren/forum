@@ -20,15 +20,14 @@ import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { ComboBox } from './SelectCategoryNewThread';
 import { useAuth } from '../app/providers/authProvider';
-import { Thread, ThreadCategory, ThreadTag } from '../app/types/thread';
-import { createThread, getThreadById, updateThread } from '@/lib/thread.db';
+import { Thread, ThreadCategory } from '../app/types/thread';
+import { getThreadById, updateThread } from '@/lib/thread.db';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useComments } from '@/app/contexts/CommentsContext';
 import Loading from './Loading';
-import { TagsForToggling } from './Tags';
 import { useTags } from '@/app/contexts/TagsContext';
 import { HiTag } from 'react-icons/hi';
 
@@ -43,14 +42,7 @@ const FormSchema = z.object({
         message: 'Thread category is required.',
     }),
     isQnA: z.boolean().optional(),
-    tags: z
-        .array(
-            z.object({
-                id: z.string(),
-                name: z.string(),
-            })
-        )
-        .optional(),
+    tags: z.array(z.string()).optional(),
 });
 
 export const EditThreadForm = () => {
@@ -58,8 +50,8 @@ export const EditThreadForm = () => {
 
     const { user: currentUser } = useAuth();
     const { id } = useComments();
-    const { tags, fetchTagsForThread, handleToggleTag } = useTags();
-
+    const { tags, selectedTags, handleToggleTag, fetchSetTags } = useTags();
+    const [thread, setThread] = useState<Thread | null>(null);
     const [loading, setLoading] = useState(true);
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -69,13 +61,14 @@ export const EditThreadForm = () => {
             threadBody: '',
             threadCategory: '',
             isQnA: false,
-            tags: [],
         } as z.infer<typeof FormSchema>,
     });
-    const { watch } = form;
-    const tagsAddedToThread: ThreadTag[] = watch('tags') || [];
-    console.log(tagsAddedToThread);
-    const [thread, setThread] = useState<Thread | null>(null);
+
+    const tagsOriginallyNotSelected = tags.filter(
+        (tag) => !selectedTags.some((t) => t.id === tag.id)
+    );
+
+    const tagsForSelection = selectedTags.concat(tagsOriginallyNotSelected);
 
     useEffect(() => {
         const fetchThread = async () => {
@@ -83,14 +76,13 @@ export const EditThreadForm = () => {
                 const thread = await getThreadById(id);
                 setThread(thread);
                 if (thread) {
-                    const threadTags = fetchTagsForThread(thread);
                     form.reset({
                         threadTitle: thread.title,
                         threadBody: thread.description,
                         threadCategory: thread.category,
                         isQnA: thread.isQnA,
-                        tags: threadTags,
                     });
+                    fetchSetTags(id);
                 }
             } catch (error) {
                 toast.error('Failed to fetch thread data.');
@@ -100,7 +92,7 @@ export const EditThreadForm = () => {
         };
 
         fetchThread();
-    }, [id, form, fetchTagsForThread, tags]);
+    }, [id, form]);
 
     const onSubmit = async (data: z.infer<typeof FormSchema>) => {
         if (!currentUser) {
@@ -114,7 +106,7 @@ export const EditThreadForm = () => {
                 description: data.threadBody,
                 category: data.threadCategory as ThreadCategory,
                 isQnA: data.isQnA,
-                tags: data.tags ?? [],
+                tags: selectedTags,
             });
             toast.success('Thread updated successfully!');
             router.push(`/threads/${data.threadCategory}/${id}`);
@@ -200,57 +192,34 @@ export const EditThreadForm = () => {
                             <FormControl>
                                 <div className='flex items-center'>
                                     <ToggleGroup
+                                        key={selectedTags.length}
                                         variant='outline'
                                         type='multiple'
                                         className='flex flex-wrap'>
-                                        {tags
-                                            .filter((tag) =>
-                                                thread?.tags?.some(
+                                        {tagsForSelection.map((tag) => {
+                                            const isSelected =
+                                                selectedTags.some(
                                                     (t) => t.id === tag.id
-                                                )
-                                            )
-                                            .map((tag) => (
-                                                <div
+                                                );
+                                            return (
+                                                <ToggleGroupItem
                                                     key={tag.id}
-                                                    className='mt-6 cursor-pointer'>
-                                                    <ToggleGroupItem
-                                                        value={tag.id}
-                                                        onClick={() =>
-                                                            handleToggleTag(tag)
-                                                        }
-                                                        className='flex gap-1.5 cursor-pointer rounded-sm items-center bg-accent text-accent-foreground transition-colors font-medium text-xs'>
-                                                        <HiTag className='size-4 ml-1' />
-                                                        <p className='text-[0.82rem] pr-2'>
-                                                            {tag.name}
-                                                        </p>
-                                                    </ToggleGroupItem>
-                                                </div>
-                                            ))}
-
-                                        {tags
-                                            .filter(
-                                                (tag) =>
-                                                    !thread?.tags?.some(
-                                                        (t) => t.id === tag.id
-                                                    )
-                                            )
-                                            .map((tag) => (
-                                                <div
-                                                    key={tag.id}
-                                                    className='mt-6 cursor-pointer'>
-                                                    <ToggleGroupItem
-                                                        value={tag.id}
-                                                        onClick={() =>
-                                                            handleToggleTag(tag)
-                                                        }
-                                                        className='flex gap-1.5 cursor-pointer rounded-sm items-center hover:text-accent-foreground transition-colors font-medium text-primary/80 text-xs'>
-                                                        <HiTag className='size-4 ml-1' />
-                                                        <p className='text-[0.82rem] pr-2'>
-                                                            {tag.name}
-                                                        </p>
-                                                    </ToggleGroupItem>
-                                                </div>
-                                            ))}
+                                                    value={tag.id}
+                                                    onClick={() =>
+                                                        handleToggleTag(tag)
+                                                    }
+                                                    className={`flex gap-1.5 cursor-pointer rounded-sm items-center hover:text-accent-foreground transition-colors font-medium text-xs ${
+                                                        isSelected
+                                                            ? 'bg-accent text-accent-foreground'
+                                                            : 'bg-primary-foreground text-primary/80'
+                                                    }`}>
+                                                    <HiTag className='size-4 ml-1' />
+                                                    <p className='text-[0.82rem] pr-2'>
+                                                        {tag.name}
+                                                    </p>
+                                                </ToggleGroupItem>
+                                            );
+                                        })}
                                     </ToggleGroup>
                                 </div>
                             </FormControl>

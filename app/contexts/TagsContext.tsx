@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { Thread, ThreadTag } from '../types/thread';
-import { getAllThreads } from '@/lib/thread.db';
+import { getAllThreads, getThreadById } from '@/lib/thread.db';
 
 type TagsContextType = {
     tags: ThreadTag[];
@@ -13,10 +13,8 @@ type TagsContextType = {
     setSelectedTags: React.Dispatch<React.SetStateAction<ThreadTag[]>>;
     selectedTag: ThreadTag | null;
     setSelectedTag: (tag: ThreadTag | null) => void;
+    fetchSetTags: (threadId: string) => void;
     handleToggleTag: (tag: ThreadTag) => void;
-    fetchTagsForThread: (
-        thread: Thread
-    ) => (ThreadTag | undefined)[] | undefined;
     clearFilter: () => void;
 };
 
@@ -83,23 +81,26 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchThreads();
     }, []);
 
-
-    const fetchTagsForThread = (thread: Thread): ThreadTag[] => {
-        return thread.tags?.map((tagId) =>
-            tags.find((tag) => tag.id === tagId.id)
-        ) as ThreadTag[];
+    const fetchSetTags = async (threadId: string) => {
+        try {
+            const thread = await getThreadById(threadId);
+            if (thread) {
+                const initiallySelectedTags = thread.tags
+                    ?.map((tagId) => tags.find((tag) => tag.id === tagId.id))
+                    .filter((tag): tag is ThreadTag => tag !== undefined);
+                setSelectedTags(initiallySelectedTags || []);
+            }
+        } catch (error) {
+            console.error('Error fetching thread:', error);
+        }
     };
 
     const handleToggleTag = (tag: ThreadTag) => {
-        try {
-            setSelectedTags((prevTags) =>
-                prevTags.some((t) => t.id === tag.id)
-                    ? prevTags.filter((t) => t.id !== tag.id)
-                    : [...prevTags, tag]
-            );
-        } catch (error) {
-            console.log('Could not toggle tag:', error);
-        }
+        setSelectedTags((prevTags) =>
+            prevTags.some((t) => t.id === tag.id)
+                ? prevTags.filter((t) => t.id !== tag.id)
+                : [...prevTags, tag]
+        );
     };
 
     const filterThreadsByTag = (tag: ThreadTag | null) => {
@@ -125,7 +126,7 @@ const TagsContextProvider: React.FC<{ children: React.ReactNode }> = ({
         setSelectedTags,
         selectedTag,
         setSelectedTag,
-        fetchTagsForThread,
+        fetchSetTags,
         clearFilter,
     };
 
