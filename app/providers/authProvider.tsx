@@ -68,7 +68,6 @@ const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         if (user) {
             try {
                 await setUserRole(user.id, true);
-                // Optionally, you can update the user state here to reflect the change
                 user.isModerator = true;
                 setUser({ ...user });
             } catch (error) {

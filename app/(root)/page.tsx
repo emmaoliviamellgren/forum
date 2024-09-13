@@ -12,7 +12,6 @@ import { useTags } from '../contexts/TagsContext';
 const LandingPage = () => {
     const router = useRouter();
     const { user } = useAuth();
-    const { clearFilter } = useTags();
 
     const handleAddNewThreadClick = async (
         e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
