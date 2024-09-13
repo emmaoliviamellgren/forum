@@ -30,7 +30,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useTags } from '@/app/contexts/TagsContext';
 
 const threadCategories: { title: string; description: string }[] = [
     {
@@ -64,7 +63,6 @@ export const Navigation = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
-    const { tags } = useTags();
 
     const handleRedirect = (category: string) => {
         const formattedCategory = formatCategoryforURL(category);

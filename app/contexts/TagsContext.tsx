@@ -10,7 +10,7 @@ type TagsContextType = {
     threads: Thread[];
     filteredThreads: Thread[];
     selectedTags: ThreadTag[];
-    setSelectedTags: React.Dispatch<React.SetStateAction<ThreadTag[]>>;
+    setSelectedTags: (tags: ThreadTag[]) => void;
     selectedTag: ThreadTag | null;
     setSelectedTag: (tag: ThreadTag | null) => void;
     fetchSetTags: (threadId: string) => void;
